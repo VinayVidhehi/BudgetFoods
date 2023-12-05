@@ -8,15 +8,17 @@ const User = require("./schema/user_schema");
 //connect to mongodb
 try {
   mongoose
-    .connect(
-      MONGO_URI
-    )
+    .connect(process.env.MONGO_URI)
     .then(() => {
-      console.log("connected to mongodb");
+      console.log("Connected to MongoDB");
+    })
+    .catch((error) => {
+      console.log("Connection to MongoDB failed: ", error.message);
     });
 } catch (error) {
-  console.log("error exists ", error.message);
+  console.log("Error outside promise: ", error.message);
 }
+
 
 const generateOTP = () => {
   return Math.floor(100000 + Math.random() * 900000);
