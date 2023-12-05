@@ -15,7 +15,7 @@ app.post('/sign-up', userSignupBeforeOTP);
 app.post('/sign-up-otp', userSignupAfterOTP);
 app.post('/login', userLogin)
 
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT || 7000;
 app.listen(PORT, ()=> {
     console.log(`listening to port at ${PORT}`);
 })
