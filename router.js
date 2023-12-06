@@ -1,18 +1,14 @@
 const express = require("express");
 const nodemailer = require("nodemailer");
 const mongoose = require("mongoose");
-const { config } = require('dotenv'); 
 
 const OneTimePassword = require("./schema/otp_schema");
 const User = require("./schema/user_schema");
 
-config();
-const MONGO_URI = process.env.MONGO_URI;
-
 //connect to mongodb
 try {
   mongoose
-    .connect(MONGO_URI)
+    .connect("mongodb+srv://bfood:45566554asdf@budgetfoods.a10zn2c.mongodb.net/")
     .then(() => {
       console.log("Connected to MongoDB");
     })
