@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 
 const OneTimePassword = require("./schema/otp_schema");
 const User = require("./schema/user_schema");
+const Food = require("./schema/food_schema");
 
 //connect to mongodb
 try {
@@ -41,7 +42,7 @@ const userSignupBeforeOTP = async (req, res) => {
   const response = await User.findOne({ email });
 
   if (response != null) {
-    res.send({ message: "user with the provided email already exists" });
+    res.send({ message: "user with the provided email already exists" ,key:1});
   } else {
     //send verification code
     const otp = generateOTP();
@@ -112,9 +113,34 @@ const userLogin = async (req, res) => {
       res.send({ message: "wrong password, please try again", key: 0 });
     }
   }
-  //respond
 };
+
+const updateFoodlist = async (req, res) => {
+  const foodList = req.body; // Assuming req.body is an array of food items
+  // console.log("foodList is ", foodList);
+
+  try {
+    await Food.insertMany(foodList);
+    res.send({ message: "Updated successfully", key: 1 });
+  } catch (error) {
+    console.error("Error updating food list:", error);
+    res.status(500).send({ message: "Internal Server Error", key: 0 });
+  }
+};
+
+const renderFoodlist = async (req, res) => {
+  try {
+    const foodlist = await Food.find({});
+    res.send({ foodlist, message: "Fetching food list successful" });
+  } catch (error) {
+    console.error("Error fetching food list:", error);
+    res.status(500).send({ message: "Internal Server Error" });
+  }
+};
+
 
 exports.userSignupBeforeOTP = userSignupBeforeOTP;
 exports.userSignupAfterOTP = userSignupAfterOTP;
 exports.userLogin = userLogin;
+exports.renderFoodlist = renderFoodlist;
+exports.updateFoodlist = updateFoodlist;
