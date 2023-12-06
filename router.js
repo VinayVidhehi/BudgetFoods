@@ -59,7 +59,7 @@ const userSignupBeforeOTP = async (req, res) => {
       from: "vinayvidhehi@gmail.com",
       to: email,
       subject: "OTP verification for BugetFoods sign up",
-      text: `Hey ${username}, your OTP for email verification is: ${otp}`,
+      text: `Your OTP for email verification is: ${otp}`,
     };
 
     // Send email with response
