@@ -79,16 +79,15 @@ const userSignupBeforeOTP = async (req, res) => {
 const userSignupAfterOTP = async (req, res) => {
   const { password, email, otp } = req.body;
 
-  const findOtp = await OneTimePassword.findOne({ username }).sort({
+  const findOtp = await OneTimePassword.findOne({ email }).sort({
     createdAt: -1,
   });
 
-  console.log("ashsish is not being saved", findOtp);
   if (otp == findOtp.otp) {
     //save user and respond with user created successfully
     const saveUser = new User({
       email,
-      password,
+      password
     });
 
     await saveUser.save();
