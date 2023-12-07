@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const OneTimePassword = require("./schema/otp_schema");
 const User = require("./schema/user_schema");
 const Food = require("./schema/food_schema");
+const Cart = require("./schema/cart_schema");
 
 //connect to mongodb
 try {
@@ -138,9 +139,84 @@ const renderFoodlist = async (req, res) => {
   }
 };
 
+const renderCartitems = async (req, res) => {
+  try {
+    const { email } = req.query;
+    console.log("email is ", email);
+    const foodlist = await Cart.findOne({ email });
+
+    if (!foodlist) {
+      return res.status(404).json({ message: "Cart not found" });
+    }
+
+    res.send({foodlist});
+  } catch (error) {
+    console.error("Error fetching cart items:", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+
+const deleteCartItem = async (req, res) => {
+  try {
+    const { email, item } = req.body;
+    const foodlist = await Cart.findOne({ email });
+
+    if (!foodlist) {
+      return res.status(404).json({ message: "Cart not found" });
+    }
+
+    // Find the index of the item to remove
+    const itemIndex = foodlist.items.findIndex((cartItem) => cartItem._id.toString() === item._id.toString());
+
+    if (itemIndex === -1) {
+      return res.status(404).json({ message: "Item not found in the cart" });
+    }
+
+    // Use $pull to remove the item from the items array
+    foodlist.items.pull(item._id);
+    await foodlist.save();
+
+    res.send({ message: "Item deleted from the cart", updatedFoodlist: foodlist });
+  } catch (error) {
+    console.error("Error deleting item from the cart:", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+const addItemToCart = async (req, res) => {
+  try {
+    const { email, item } = req.body;
+    const currentCart = await Cart.findOne({ email });
+
+    if (!currentCart) {
+      // If the cart doesn't exist, create a new cart
+      const newCart = new Cart({
+        email,
+        items: [item],
+      });
+      await newCart.save();
+      res.json({ message: "Item added to the cart", updatedCart: newCart });
+    } else {
+      // If the cart exists, push the new item to the items array and save
+      currentCart.items.push(item);
+      await currentCart.save();
+      res.json({ message: "Item added to the cart", updatedCart: currentCart });
+    }
+  } catch (error) {
+    console.error("Error adding item to the cart:", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+
+
 
 exports.userSignupBeforeOTP = userSignupBeforeOTP;
 exports.userSignupAfterOTP = userSignupAfterOTP;
 exports.userLogin = userLogin;
 exports.renderFoodlist = renderFoodlist;
 exports.updateFoodlist = updateFoodlist;
+exports.renderCartitems = renderCartitems;
+exports.deleteCartItem = deleteCartItem;
+exports.addItemToCart = addItemToCart;
