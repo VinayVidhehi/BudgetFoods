@@ -184,31 +184,32 @@ const deleteCartItem = async (req, res) => {
 };
 
 const addItemToCart = async (req, res) => {
-  try {
-    const { email, item } = req.body;
-    const currentCart = await Cart.findOne({ email });
+  const { email, item } = req.body;
+  const currentCart = await Cart.findOne({ email });
 
-    if (!currentCart) {
-      // If the cart doesn't exist, create a new cart
-      const newCart = new Cart({
-        email,
-        items: [item],
-      });
-      await newCart.save();
-      res.json({ message: "Item added to the cart", updatedCart: newCart });
+  if (!currentCart) {
+    // If the cart doesn't exist, create a new cart and add the item
+    const newCart = new Cart({
+      email,
+      items: [item],
+    });
+    await newCart.save();
+    res.json({ message: "Item added to the cart", updatedCart: newCart });
+  } else {
+    // If the cart exists, check if the item is already in the cart
+    const isItemInCart = currentCart.items.some((cartItem) => cartItem.name === item.name);
+
+    if (isItemInCart) {
+      // If the item is already in the cart, you can handle it accordingly (e.g., send a message)
+      res.json({ message: "Item is already in the cart", updatedCart: currentCart });
     } else {
-      // If the cart exists, push the new item to the items array and save
+      // If the item is not in the cart, push the new item to the items array and save
       currentCart.items.push(item);
       await currentCart.save();
       res.json({ message: "Item added to the cart", updatedCart: currentCart });
     }
-  } catch (error) {
-    console.error("Error adding item to the cart:", error.message);
-    res.status(500).json({ message: "Internal Server Error" });
   }
 };
-
-
 
 
 exports.userSignupBeforeOTP = userSignupBeforeOTP;
