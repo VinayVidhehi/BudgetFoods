@@ -142,7 +142,6 @@ const renderFoodlist = async (req, res) => {
 const renderCartitems = async (req, res) => {
   try {
     const { email } = req.query;
-    console.log("email is ", email);
     const foodlist = await Cart.findOne({ email });
 
     if (!foodlist) {
