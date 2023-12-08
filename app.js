@@ -9,6 +9,7 @@ const {
   updateFoodlist,
   renderCartitems,
   deleteCartItem,
+  updateCartItemQuantity,
   addItemToCart,
 } = require("./router");
 
@@ -23,6 +24,7 @@ app.post("/sign-up-otp", userSignupAfterOTP);
 app.post("/update-foodlist", updateFoodlist);
 app.post("/update-cart", addItemToCart);
 app.post("/remove-cart-item", deleteCartItem);
+app.post("/update-cart-quantity", updateCartItemQuantity);
 
 app.get("/foodlist", renderFoodlist);
 app.get("/cart", renderCartitems);

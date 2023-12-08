@@ -1,47 +1,50 @@
-
 const mongoose = require("mongoose");
 
 const item = new mongoose.Schema({
   name: {
-      type: String,
+    type: String,
   },
   id: {
-      type: String,
+    type: String,
   },
   description: {
-      type: String,
+    type: String,
+  },
+  quantity: {
+    type: Number,
+    default: 1,
   },
   category: {
-      type: String,
+    type: String,
   },
   price: {
-      type: Number,
+    type: Number,
   },
   ingredients: {
-      type: [String],
+    type: [String],
   },
   allergens: {
-      type: [String],
+    type: [String],
   },
   calories: {
-      type: Number,
+    type: Number,
   },
   image: {
-      type: String,
+    type: String,
   },
   origin: {
-      type: String,
-  }
-  });
+    type: String,
+  },
+});
 
 const cartSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
   },
-  items: [item]
+  items: [item],
 });
 
-const Cart = mongoose.model('Cart', cartSchema);
+const Cart = mongoose.model("Cart", cartSchema);
 
 module.exports = Cart;

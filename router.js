@@ -211,6 +211,33 @@ const addItemToCart = async (req, res) => {
   }
 };
 
+const updateCartItemQuantity = async (req, res) => {
+  try {
+    const { email, cartItems } = req.body;
+    const currentCart = await Cart.findOne({ email });
+
+    // Iterate through the updated cart items
+    cartItems.forEach((updatedItem) => {
+      const existingCartItemIndex = currentCart.items.findIndex(
+        (item) => item.name === updatedItem.name
+      );
+
+      // If the item exists in the current cart, update its quantity
+      if (existingCartItemIndex !== -1) {
+        currentCart.items[existingCartItemIndex].quantity = updatedItem.quantity;
+      }
+    });
+
+    // Save the updated cart
+    await currentCart.save();
+
+    res.json({ message: "Cart items updated", updatedCart: currentCart });
+  } catch (error) {
+    console.error("Error updating cart items:", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 
 exports.userSignupBeforeOTP = userSignupBeforeOTP;
 exports.userSignupAfterOTP = userSignupAfterOTP;
@@ -220,3 +247,4 @@ exports.updateFoodlist = updateFoodlist;
 exports.renderCartitems = renderCartitems;
 exports.deleteCartItem = deleteCartItem;
 exports.addItemToCart = addItemToCart;
+exports.updateCartItemQuantity = updateCartItemQuantity;
