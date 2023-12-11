@@ -10,7 +10,11 @@ const {
   renderCartitems,
   deleteCartItem,
   updateCartItemQuantity,
+  saveRestaurantCredentials,
   addItemToCart,
+  addFoodItem,
+  deleteFoodItem,
+  updateFoodItem,
 } = require("./router");
 
 const app = express();
@@ -25,6 +29,10 @@ app.post("/update-foodlist", updateFoodlist);
 app.post("/update-cart", addItemToCart);
 app.post("/remove-cart-item", deleteCartItem);
 app.post("/update-cart-quantity", updateCartItemQuantity);
+app.post("/restaurant-cred", saveRestaurantCredentials);
+app.post("/add-fooditem", addFoodItem);
+app.post("/update-fooditem", updateFoodItem);
+app.post("/delete-fooditem", deleteFoodItem)
 
 app.get("/foodlist", renderFoodlist);
 app.get("/cart", renderCartitems);

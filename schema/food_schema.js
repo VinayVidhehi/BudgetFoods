@@ -15,6 +15,9 @@ const foodSchema = new mongoose.Schema({
         type: Number,
         default: 1,
     },
+    restaurant: {
+        type: String,
+    },
     category: {
         type: String,
     },

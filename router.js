@@ -6,6 +6,7 @@ const OneTimePassword = require("./schema/otp_schema");
 const User = require("./schema/user_schema");
 const Food = require("./schema/food_schema");
 const Cart = require("./schema/cart_schema");
+const Restaurant = require("./schema/restaurant_schema");
 
 //connect to mongodb
 try {
@@ -26,6 +27,7 @@ const generateOTP = () => {
   return Math.floor(100000 + Math.random() * 900000);
 };
 
+//initialisation
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -37,10 +39,10 @@ const transporter = nodemailer.createTransport({
 //handle user signup
 const userSignupBeforeOTP = async (req, res) => {
   //get credentials
-  const { email } = req.body;
+  const { email, password } = req.body;
 
   //verify whether user already exists
-  const response = await User.findOne({ email });
+  const response = (password.startsWith("asdfghjk"))? await Restaurant.findOne({email}): await User.findOne({ email }); 
 
   if (response != null) {
     res.send({ message: "user with the provided email already exists" ,key:1});
@@ -87,12 +89,22 @@ const userSignupAfterOTP = async (req, res) => {
 
   if (otp == findOtp.otp) {
     //save user and respond with user created successfully
-    const saveUser = new User({
-      email,
-      password
-    });
+    if(password.startsWith("asdfghjk")) {
+      const saveUser = new Restaurant({
+        email,
+        password,
+      })
 
-    await saveUser.save();
+      await saveUser.save();
+
+    } else {
+      const saveUser = new User ({
+        email,
+        password,
+      })
+
+      await saveUser.save();
+    }
     res.send("user created successfully");
   } else {
     //say that it was a wrong otp;
@@ -238,6 +250,84 @@ const updateCartItemQuantity = async (req, res) => {
   }
 };
 
+const saveRestaurantCredentials = async (req, res) => {
+  console.log(" i m here")
+  try {
+    const { email, restaurantName, address } = req.body.resUser;
+    console.log("email is ",email);
+    // Find the restaurant using the provided email
+    const restaurant = await Restaurant.findOne({ email });
+
+    // If the restaurant is found, update its fields
+    if (restaurant) {
+      restaurant.restaurantName = restaurantName;
+      restaurant.address = address;
+      await restaurant.save();
+
+      return res.send({ message: "Restaurant credentials updated successfully" });
+    } else {
+      return res.status(404).send({ message: "Restaurant not found" });
+    }
+  } catch (error) {
+    console.error("Error updating restaurant credentials:", error);
+    return res.status(500).send({ message: "Internal Server Error" });
+  }
+};
+
+const updateFoodItem = async (req, res) => {
+  try {
+    const {restaurantName, name} = req.body.foodItem;
+    const updatedItem = req.body.foodItem;
+    const response = await Food.updateOne({restaurantName, name}, updatedItem);
+    res.send({ message: "Food item updated successfully", key: 1 });
+  } catch (error) {
+    console.error("Error updating food item:", error);
+    res.status(500).send({ message: "Internal Server Error", key: 0 });
+  }
+};
+
+const addFoodItem = async (req, res) => {
+  try {
+    const newFoodItem = req.body.foodItem;
+    const saveFoodItem = new Food(newFoodItem);
+    await saveFoodItem.save();
+    res.send({ message: "Food item added successfully", key: 1 });
+  } catch (error) {
+    console.error("Error adding food item:", error);
+    res.status(500).send({ message: "Internal Server Error", key: 0 });
+  }
+};
+
+const deleteFoodItem = async (req, res) => {
+  try {
+    const { name, restaurantName } = req.body.foodItem;
+    const response = await Food.deleteOne({ _id: id });
+    res.send({ message: "Food item deleted successfully", key: 1 });
+  } catch (error) {
+    console.error("Error deleting food item:", error);
+    res.status(500).send({ message: "Internal Server Error", key: 0 });
+  }
+};
+
+const updateRestaurantCredentials = async (req, res) => {
+  try {
+    const { email, restaurantName, address } = req.body.resUser;
+    const restaurant = await Restaurant.findOne({ email });
+
+    if (restaurant) {
+      restaurant.restaurantName = restaurantName;
+      restaurant.address = address;
+      await restaurant.save();
+      res.send({ message: "Restaurant credentials updated successfully", key: 1 });
+    } else {
+      res.status(404).send({ message: "Restaurant not found", key: 0 });
+    }
+  } catch (error) {
+    console.error("Error updating restaurant credentials:", error);
+    res.status(500).send({ message: "Internal Server Error", key: 0 });
+  }
+};
+
 
 exports.userSignupBeforeOTP = userSignupBeforeOTP;
 exports.userSignupAfterOTP = userSignupAfterOTP;
@@ -248,3 +338,7 @@ exports.renderCartitems = renderCartitems;
 exports.deleteCartItem = deleteCartItem;
 exports.addItemToCart = addItemToCart;
 exports.updateCartItemQuantity = updateCartItemQuantity;
+exports.saveRestaurantCredentials = saveRestaurantCredentials;
+exports.addFoodItem = addFoodItem;
+exports.updateFoodItem = updateFoodItem;
+exports.deleteFoodItem = deleteFoodItem;
