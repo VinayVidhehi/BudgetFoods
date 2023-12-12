@@ -7,6 +7,7 @@ const User = require("./schema/user_schema");
 const Food = require("./schema/food_schema");
 const Cart = require("./schema/cart_schema");
 const Restaurant = require("./schema/restaurant_schema");
+const Order = require("./schema/order_schema");
 
 //connect to mongodb
 try {
@@ -328,6 +329,54 @@ const updateRestaurantCredentials = async (req, res) => {
   }
 };
 
+const handleOrder = async (req, res) => {
+  try {
+    const { email, items, totalAmount } = req.body;
+
+    console.log("order payload is ", req.body);
+
+    // Assuming items in the request contain food IDs and quantities
+    // Create an array of items with the required structure
+    const orderItems = items.map((item) => ({
+      food: item._id, // Assuming foodId is provided in the request
+      quantity: item.quantity,
+    }));
+
+    // Create a new order instance
+    const newOrder = new Order({
+      email,
+      items: orderItems,
+      totalPrice: totalAmount,
+    });
+
+    // Save the order to the database
+    await newOrder.save();
+
+    // Respond with a success message or any additional information
+    res.json({ message: "Order placed successfully", orderId: newOrder._id });
+  } catch (error) {
+    console.error("Error placing the order:", error.message);
+    // Respond with an error message or status code
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+const handleOrderFetch = async (req, res) => {
+  try {
+    const { restaurantName } = req.query;
+
+    // Find orders with items related to the specified restaurant
+    const orders = await Order.find({
+      "items.food.restaurantName": restaurantName,
+    }).sort({ createdAt: -1 });
+
+    res.status(200).json({ orders });
+  } catch (error) {
+    console.error("Error fetching orders:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+}
+
 
 exports.userSignupBeforeOTP = userSignupBeforeOTP;
 exports.userSignupAfterOTP = userSignupAfterOTP;
@@ -342,3 +391,5 @@ exports.saveRestaurantCredentials = saveRestaurantCredentials;
 exports.addFoodItem = addFoodItem;
 exports.updateFoodItem = updateFoodItem;
 exports.deleteFoodItem = deleteFoodItem;
+exports.handleOrder = handleOrder;
+exports.handleOrderFetch = handleOrderFetch;

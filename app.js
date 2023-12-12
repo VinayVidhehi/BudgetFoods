@@ -15,6 +15,8 @@ const {
   addFoodItem,
   deleteFoodItem,
   updateFoodItem,
+  handleOrder,
+  handleOrderFetch,
 } = require("./router");
 
 const app = express();
@@ -32,10 +34,13 @@ app.post("/update-cart-quantity", updateCartItemQuantity);
 app.post("/restaurant-cred", saveRestaurantCredentials);
 app.post("/add-fooditem", addFoodItem);
 app.post("/update-fooditem", updateFoodItem);
-app.post("/delete-fooditem", deleteFoodItem)
+app.post("/delete-fooditem", deleteFoodItem);
+app.post("/order", handleOrder);
 
 app.get("/foodlist", renderFoodlist);
 app.get("/cart", renderCartitems);
+app.get("/orders", handleOrderFetch);
+
 
 
 const PORT = process.env.PORT || 7000;
