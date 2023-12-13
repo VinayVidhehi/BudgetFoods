@@ -17,6 +17,7 @@ const {
   updateFoodItem,
   handleOrder,
   handleOrderFetch,
+  handleUserOrders,
 } = require("./router");
 
 const app = express();
@@ -40,6 +41,7 @@ app.post("/order", handleOrder);
 app.get("/foodlist", renderFoodlist);
 app.get("/cart", renderCartitems);
 app.get("/orders", handleOrderFetch);
+app.get("/get-orders", handleUserOrders);
 
 
 

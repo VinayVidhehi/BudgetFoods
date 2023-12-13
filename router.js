@@ -377,6 +377,20 @@ const handleOrderFetch = async (req, res) => {
   }
 }
 
+const handleUserOrders = async (req, res) => {
+  try {
+    const userEmail = req.query.email; // Assuming you are passing the email as a query parameter
+   console.log("useremail is ", userEmail);
+    // Fetch orders from the database based on the user's email
+    const userOrders = await Order.find({ email: userEmail });
+
+    res.status(200).json({ orders: userOrders });
+  } catch (error) {
+    console.error('Error fetching user orders:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+}
+
 
 exports.userSignupBeforeOTP = userSignupBeforeOTP;
 exports.userSignupAfterOTP = userSignupAfterOTP;
@@ -393,3 +407,4 @@ exports.updateFoodItem = updateFoodItem;
 exports.deleteFoodItem = deleteFoodItem;
 exports.handleOrder = handleOrder;
 exports.handleOrderFetch = handleOrderFetch;
+exports.handleUserOrders = handleUserOrders;
