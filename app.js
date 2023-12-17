@@ -18,6 +18,7 @@ const {
   handleOrder,
   handleOrderFetch,
   handleUserOrders,
+  handleRestaurantFind,
 } = require("./router");
 
 const app = express();
@@ -42,10 +43,15 @@ app.get("/foodlist", renderFoodlist);
 app.get("/cart", renderCartitems);
 app.get("/orders", handleOrderFetch);
 app.get("/get-orders", handleUserOrders);
-
+app.get("/restaurant-cred", handleRestaurantFind);
 
 
 const PORT = process.env.PORT || 7000;
 app.listen(PORT, () => {
   console.log(`listening to port at ${PORT}`);
 });
+
+//managing restaurant food updates
+//tabing to next input 
+//complete the footer navigation
+//design

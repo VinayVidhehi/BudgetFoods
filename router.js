@@ -394,6 +394,20 @@ const handleUserOrders = async (req, res) => {
   }
 }
 
+const handleRestaurantFind = async (req, res) => {
+  try{
+    const {email} = req.query;
+    const credentials = await Restaurant.findOne({email:email});
+    if(credentials) {
+      res.json({credentials, key:1});
+    }
+    else {
+      res.json({message: "no restaurant found with the given email", key:0})
+    } 
+  } catch(error) {
+    console.log("the error while searching for restaurant is ", error);
+  }
+}
 
 
 exports.userSignupBeforeOTP = userSignupBeforeOTP;
@@ -412,3 +426,4 @@ exports.deleteFoodItem = deleteFoodItem;
 exports.handleOrder = handleOrder;
 exports.handleOrderFetch = handleOrderFetch;
 exports.handleUserOrders = handleUserOrders;
+exports.handleRestaurantFind = handleRestaurantFind;
