@@ -99,7 +99,7 @@ const userSignupAfterOTP = async (req, res) => {
     if(password.startsWith("asdfghjk")) {
       const saveUser = new Restaurant({
         email,
-        hashedPassword,
+        password:hashedPassword,
       })
 
       await saveUser.save();
@@ -107,7 +107,7 @@ const userSignupAfterOTP = async (req, res) => {
     } else {
       const saveUser = new User ({
         email,
-        hashedPassword,
+        password:hashedPassword,
       })
 
       await saveUser.save();
