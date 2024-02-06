@@ -1,6 +1,8 @@
 const express = require("express");
 const nodemailer = require("nodemailer");
 const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
+const saltRounds = 10;
 
 const OneTimePassword = require("./schema/otp_schema");
 const User = require("./schema/user_schema");
@@ -90,10 +92,13 @@ const userSignupAfterOTP = async (req, res) => {
 
   if (otp == findOtp.otp) {
     //save user and respond with user created successfully
+
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
     if(password.startsWith("asdfghjk")) {
       const saveUser = new Restaurant({
         email,
-        password,
+        hashedPassword,
       })
 
       await saveUser.save();
@@ -101,7 +106,7 @@ const userSignupAfterOTP = async (req, res) => {
     } else {
       const saveUser = new User ({
         email,
-        password,
+        hashedPassword,
       })
 
       await saveUser.save();
@@ -121,7 +126,8 @@ const userLogin = async (req, res) => {
   if (response == null) {
     res.send({ message: "user not found, please sign up" });
   } else {
-    if (password == response.password) {
+    const passwordMatch = await bcrypt.compare(password, response.password);
+    if (passwordMatch) {
       res.send({ message: "user logged in successfully", key: 1 });
     } else {
       res.send({ message: "wrong password, please try again", key: 0 });
