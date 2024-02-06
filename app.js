@@ -27,7 +27,7 @@ app.use(bodyParser.json());
 app.use(cors());
 
 app.post("/sign-up", userSignupBeforeOTP);
-app.post("/sign-up-otp", userSignupAfterOTP);
+app.post("/signup-otp", userSignupAfterOTP);
 app.post("/sign-in", userLogin);
 app.post("/update-foodlist", updateFoodlist);
 app.post("/update-cart", addItemToCart);
