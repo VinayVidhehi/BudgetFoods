@@ -1,7 +1,7 @@
 const express = require("express");
 const nodemailer = require("nodemailer");
 const mongoose = require("mongoose");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const saltRounds = 10;
 
 const OneTimePassword = require("./schema/otp_schema");
