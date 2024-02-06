@@ -92,7 +92,7 @@ const userSignupAfterOTP = async (req, res) => {
 
   if (otp == findOtp.otp) {
     //save user and respond with user created successfully
-
+    console.log("otp is ", findOtp.otp);
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
     if(password.startsWith("asdfghjk")) {
