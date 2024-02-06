@@ -168,7 +168,6 @@ const renderCartitems = async (req, res) => {
   }
 };
 
-
 const deleteCartItem = async (req, res) => {
   try {
     const { email, item } = req.body;
