@@ -84,6 +84,7 @@ const userSignupBeforeOTP = async (req, res) => {
 };
 
 const userSignupAfterOTP = async (req, res) => {
+  console.log("i m here");
   const { password, email, otp } = req.body;
 
   const findOtp = await OneTimePassword.findOne({ email }).sort({
