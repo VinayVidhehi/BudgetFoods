@@ -1,11 +1,13 @@
-
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-const foodSchema = new mongoose.Schema({
-    name: {
+const foodSchema = new Schema({
+    foodId: {
         type: String,
+        required: true,
+        unique: true // Ensure foodId is unique
     },
-    id: {
+    name: {
         type: String,
     },
     description: {
@@ -16,7 +18,8 @@ const foodSchema = new mongoose.Schema({
         default: 1,
     },
     restaurant: {
-        type: String,
+        type: Schema.Types.ObjectId, // Reference to the Restaurant schema
+        ref: 'Restaurant' // The model name of the referenced schema
     },
     category: {
         type: String,
@@ -39,7 +42,7 @@ const foodSchema = new mongoose.Schema({
     origin: {
         type: String,
     }
-    });
+});
 
 const Food = mongoose.model('Food', foodSchema);
 
