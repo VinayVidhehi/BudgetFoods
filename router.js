@@ -14,7 +14,9 @@ const Order = require("./schema/order_schema");
 //connect to mongodb
 try {
   mongoose
-    .connect("mongodb+srv://bfood:45566554asdf@budgetfoods.a10zn2c.mongodb.net/")
+    .connect(
+      "mongodb+srv://bfood:45566554asdf@budgetfoods.a10zn2c.mongodb.net/"
+    )
     .then(() => {
       console.log("Connected to MongoDB");
     })
@@ -24,7 +26,6 @@ try {
 } catch (error) {
   console.log("Error outside promise: ", error.message);
 }
-
 
 const generateOTP = () => {
   return Math.floor(100000 + Math.random() * 900000);
@@ -42,13 +43,23 @@ const transporter = nodemailer.createTransport({
 //handle user signup
 const userSignupBeforeOTP = async (req, res) => {
   //get credentials
-  const { email, password } = req.body;
+  const { email, key } = req.body;
 
   //verify whether user already exists
-  const response = (password.startsWith("asdfghjk"))? await Restaurant.findOne({email}): await User.findOne({ email }); 
+  let response;
+  const user = await User.findOne({ email });
+  if (user) {
+    response = user;
+  } else {
+    const restaurant = await Restaurant.findOne({ email });
+    response = restaurant;
+  }
 
-  if (response != null) {
-    res.send({ message: "user with the provided email already exists" ,key:1});
+  if (response != null && key != 1) {
+    res.send({
+      message: "user with the provided email already exists",
+      key: 1,
+    });
   } else {
     //send verification code
     const otp = generateOTP();
@@ -85,7 +96,7 @@ const userSignupBeforeOTP = async (req, res) => {
 
 const userSignupAfterOTP = async (req, res) => {
   console.log("i m here");
-  const { password, email, otp } = req.body;
+  const { password, email, otp} = req.body;
 
   const findOtp = await OneTimePassword.findOne({ email }).sort({
     createdAt: -1,
@@ -96,19 +107,18 @@ const userSignupAfterOTP = async (req, res) => {
     console.log("otp is ", findOtp.otp);
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    if(password.startsWith("asdfghjk")) {
+    if (password.startsWith("asdfghjk")) {
       const saveUser = new Restaurant({
         email,
-        password:hashedPassword,
-      })
+        password: hashedPassword,
+      });
 
       await saveUser.save();
-
     } else {
-      const saveUser = new User ({
+      const saveUser = new User({
         email,
-        password:hashedPassword,
-      })
+        password: hashedPassword,
+      });
 
       await saveUser.save();
     }
@@ -122,14 +132,19 @@ const userSignupAfterOTP = async (req, res) => {
 const userLogin = async (req, res) => {
   //check cred
   const { email, password } = req.body;
-  
+
   //auth
   const response = await User.findOne({ email });
   if (response == null) {
     res.send({ message: "user not found, please sign up" });
   } else {
     const passwordMatch = await bcrypt.compare(password, response.password);
-    console.log("new password while sign in is",password, response.password,passwordMatch)
+    console.log(
+      "new password while sign in is",
+      password,
+      response.password,
+      passwordMatch
+    );
     if (passwordMatch) {
       res.send({ message: "user logged in successfully", key: 1 });
     } else {
@@ -170,7 +185,7 @@ const renderCartitems = async (req, res) => {
       return res.status(404).json({ message: "Cart not found" });
     }
 
-    res.send({foodlist});
+    res.send({ foodlist });
   } catch (error) {
     console.error("Error fetching cart items:", error.message);
     res.status(500).json({ message: "Internal Server Error" });
@@ -187,7 +202,9 @@ const deleteCartItem = async (req, res) => {
     }
 
     // Find the index of the item to remove
-    const itemIndex = foodlist.items.findIndex((cartItem) => cartItem._id.toString() === item._id.toString());
+    const itemIndex = foodlist.items.findIndex(
+      (cartItem) => cartItem._id.toString() === item._id.toString()
+    );
 
     if (itemIndex === -1) {
       return res.status(404).json({ message: "Item not found in the cart" });
@@ -197,7 +214,10 @@ const deleteCartItem = async (req, res) => {
     foodlist.items.pull(item._id);
     await foodlist.save();
 
-    res.send({ message: "Item deleted from the cart", updatedFoodlist: foodlist });
+    res.send({
+      message: "Item deleted from the cart",
+      updatedFoodlist: foodlist,
+    });
   } catch (error) {
     console.error("Error deleting item from the cart:", error.message);
     res.status(500).json({ message: "Internal Server Error" });
@@ -218,11 +238,16 @@ const addItemToCart = async (req, res) => {
     res.json({ message: "Item added to the cart", updatedCart: newCart });
   } else {
     // If the cart exists, check if the item is already in the cart
-    const isItemInCart = currentCart.items.some((cartItem) => cartItem.name === item.name);
+    const isItemInCart = currentCart.items.some(
+      (cartItem) => cartItem.name === item.name
+    );
 
     if (isItemInCart) {
       // If the item is already in the cart, you can handle it accordingly (e.g., send a message)
-      res.json({ message: "Item is already in the cart", updatedCart: currentCart });
+      res.json({
+        message: "Item is already in the cart",
+        updatedCart: currentCart,
+      });
     } else {
       // If the item is not in the cart, push the new item to the items array and save
       currentCart.items.push(item);
@@ -245,7 +270,8 @@ const updateCartItemQuantity = async (req, res) => {
 
       // If the item exists in the current cart, update its quantity
       if (existingCartItemIndex !== -1) {
-        currentCart.items[existingCartItemIndex].quantity = updatedItem.quantity;
+        currentCart.items[existingCartItemIndex].quantity =
+          updatedItem.quantity;
       }
     });
 
@@ -260,10 +286,10 @@ const updateCartItemQuantity = async (req, res) => {
 };
 
 const saveRestaurantCredentials = async (req, res) => {
-  console.log(" i m here")
+  console.log(" i m here");
   try {
     const { email, restaurantName, address } = req.body.resUser;
-    console.log("email is ",email);
+    console.log("email is ", email);
     // Find the restaurant using the provided email
     const restaurant = await Restaurant.findOne({ email });
 
@@ -273,7 +299,9 @@ const saveRestaurantCredentials = async (req, res) => {
       restaurant.address = address;
       await restaurant.save();
 
-      return res.send({ message: "Restaurant credentials updated successfully" });
+      return res.send({
+        message: "Restaurant credentials updated successfully",
+      });
     } else {
       return res.status(404).send({ message: "Restaurant not found" });
     }
@@ -285,9 +313,12 @@ const saveRestaurantCredentials = async (req, res) => {
 
 const updateFoodItem = async (req, res) => {
   try {
-    const {restaurantName, name} = req.body.foodItem;
+    const { restaurantName, name } = req.body.foodItem;
     const updatedItem = req.body.foodItem;
-    const response = await Food.updateOne({restaurantName, name}, updatedItem);
+    const response = await Food.updateOne(
+      { restaurantName, name },
+      updatedItem
+    );
     res.send({ message: "Food item updated successfully", key: 1 });
   } catch (error) {
     console.error("Error updating food item:", error);
@@ -327,7 +358,10 @@ const updateRestaurantCredentials = async (req, res) => {
       restaurant.restaurantName = restaurantName;
       restaurant.address = address;
       await restaurant.save();
-      res.send({ message: "Restaurant credentials updated successfully", key: 1 });
+      res.send({
+        message: "Restaurant credentials updated successfully",
+        key: 1,
+      });
     } else {
       res.status(404).send({ message: "Restaurant not found", key: 0 });
     }
@@ -383,7 +417,7 @@ const handleOrderFetch = async (req, res) => {
     console.error("Error fetching orders:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
-}
+};
 
 const handleUserOrders = async (req, res) => {
   try {
@@ -392,31 +426,29 @@ const handleUserOrders = async (req, res) => {
 
     // Fetch orders from the database based on the user's email
     const userOrders = await Order.find({ email: userEmail })
-      .populate('food') // Populate the 'food' field, assuming it's the name of the field referencing the Food collection
+      .populate("food") // Populate the 'food' field, assuming it's the name of the field referencing the Food collection
       .exec();
-    console.log('userOrders is ',userOrders);
+    console.log("userOrders is ", userOrders);
     res.status(200).json({ orders: userOrders });
   } catch (error) {
-    console.error('Error fetching user orders:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    console.error("Error fetching user orders:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
-}
+};
 
 const handleRestaurantFind = async (req, res) => {
-  try{
-    const {email} = req.query;
-    const credentials = await Restaurant.findOne({email:email});
-    if(credentials) {
-      res.json({credentials, key:1});
+  try {
+    const { email } = req.query;
+    const credentials = await Restaurant.findOne({ email: email });
+    if (credentials) {
+      res.json({ credentials, key: 1 });
+    } else {
+      res.json({ message: "no restaurant found with the given email", key: 0 });
     }
-    else {
-      res.json({message: "no restaurant found with the given email", key:0})
-    } 
-  } catch(error) {
+  } catch (error) {
     console.log("the error while searching for restaurant is ", error);
   }
-}
-
+};
 
 exports.userSignupBeforeOTP = userSignupBeforeOTP;
 exports.userSignupAfterOTP = userSignupAfterOTP;
