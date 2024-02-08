@@ -122,12 +122,14 @@ const userSignupAfterOTP = async (req, res) => {
 const userLogin = async (req, res) => {
   //check cred
   const { email, password } = req.body;
+  
   //auth
   const response = await User.findOne({ email });
   if (response == null) {
     res.send({ message: "user not found, please sign up" });
   } else {
     const passwordMatch = await bcrypt.compare(password, response.password);
+    console.log("new password while sign in is",password, response.password,passwordMatch)
     if (passwordMatch) {
       res.send({ message: "user logged in successfully", key: 1 });
     } else {
